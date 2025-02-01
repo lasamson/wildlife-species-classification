@@ -35,8 +35,9 @@ The amount of training data available after performing the train-validation-test
 
 Initially, we resize all images to dimension `(150, 150, 3)` and rescale pixel values to be in the interval `[0, 1]` by applying a scale factor of `1/255`. Then we apply 5 convolutional layers with an increasing number of filters, while the max pooling layers in between each convolutional layer halves the input dimensionality at each step. After the final convolutional layer, we have 256 5x5 feature maps, which are then flattened to a rank-1 tensor and passed through 3 Dense layers, with Dropout layers in between. The final Dense layer maps to $\mathbb{R}^8$, and we apply a softmax activation to get a predicted probability distribution over the labels.
 
-<img src='img/small_cnn.png' style='display: block; margin-left: auto; margin-right: auto; width: 30%'>
-<br/>
+<p align='center' width='100%'>
+<img src='img/small_cnn.png' width='40%'>
+</p>
 
 The small "from-scratch" CNN model achieves an accuracy of 85% on the held out test set. The full process of hyperparameter tuning, training, and model selection can be seen in the `small_cnn_model.ipynb` notebook.
 
