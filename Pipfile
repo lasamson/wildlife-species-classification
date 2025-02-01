@@ -11,6 +11,9 @@ scikit-learn = "*"
 pillow = "*"
 tensorflow = {extras = ["and-cuda"], version = "*"}
 matplotlib = "*"
+notebook = "*"
+pydot = "*"
+pydotplus = "*"
 
 [dev-packages]
 
