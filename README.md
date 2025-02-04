@@ -91,3 +91,20 @@ This script will save the best performing model (with lowest validation loss) as
 
 ### Deploying the Model
 
+There are two approaches we took for deploying the model, both locally and on Amazon Web Services (AWS). The primary difference between the approaches is that the first approach uses the full TensorFlow library in deployment, and the second approach uses TensorFlow Serving, which is better optimized for deployment scenarios for two main reasons:
+1. It is a lightweight system specifically made for serving trained models, and thus, discards all features of TensorFlow besides inference capabilities. It also has a highly optimized, low-level implementation in C++.
+2. It supports serving models via gRPC, which is a data format that encodes data using a more efficient binary representation. This makes it more efficient than JSON, which is based on key-value pairs and high-level data structures such as strings, numbers, and objects. The catch is that deployment involves more moving parts and complex logic.
+
+### Deploying with Vanilla TensorFlow
+
+#### Deploying Locally with Docker and Flask
+
+#### Deploying to the Cloud (AWS Lambda)
+
+### Deploying with TensorFlow Serving
+
+#### Deploying Locally with Docker-Compose
+
+#### Deploying Locally with Kubernetes
+
+#### Deploying to the Cloud (AWS Elastic Kubernetes Service)
