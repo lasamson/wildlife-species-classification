@@ -41,14 +41,53 @@ Initially, we resize all images to dimension `(150, 150, 3)` and rescale pixel v
 
 The small "from-scratch" CNN model achieves an accuracy of 85% on the held out test set. The full process of hyperparameter tuning, training, and model selection can be seen in the `small_cnn_model.ipynb` notebook.
 
-### Downloading and Preparing the Data
+### Install Dependencies
 
-To be filled
+The dependencies for this project can be installed using `pipenv`. First, install `pipenv` using `pip`:
+
+```
+pip install pipenv
+```
+
+Then, the dependencies can be installed by first changing directory into the root folder of this project, and then running the following:
+
+```
+pipenv install
+```
+
+Note that this will create a virtual environment for this project. The virtual environment can be activated by running:
+
+```
+pipenv shell
+```
+
+### Downloading the Dataset and Creating Directories by Split
+
+Since the data directory is too large to store on GitHub, there are two scripts that will do the following: download the compressed dataset, split the data according to the chosen train-validation-test proportions, and create the hierarchical data directory structure expected by the `image_dataset_from_directory` function from Keras.
+
+First, run the following script to download the compressed dataset:
+
+```
+python scripts/data/download_dataset.py
+```
+
+Then, run the following script to create the directory structure:
+
+```
+python scripts/data/create_directories_by_split.py
+```
 
 ### Training the Model
 
-To be filled
+The `bin/custom` directories already contain the best models (by validation loss) for each run of hyperparameter tuning. The best overall model is `custom_dropout_0.5_100_0.846_0.521.keras`, and this is the one that we put into production.
+
+In order to train this model (with the same hyperparameter values), run the following script:
+
+```
+python scripts/train.py
+```
+
+This script will save the best performing model (with lowest validation loss) as `best_model.keras` in the `bin/custom` folder.
 
 ### Deploying the Model
 
-To be filled
