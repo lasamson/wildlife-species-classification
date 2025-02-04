@@ -3,3 +3,7 @@
 species_data_original.zip
 species_data_original/
 species_data/
+
+bin/saved_model/
+
+ping/

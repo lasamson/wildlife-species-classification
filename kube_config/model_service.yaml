@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tf-serving-species-model
+spec:
+  selector:
+    app: tf-serving-species-model
+  ports:
+  - port: 8500
+    targetPort: 8500

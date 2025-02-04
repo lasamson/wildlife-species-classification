@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tf-serving-species-model
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tf-serving-species-model
+  template:
+    metadata:
+      labels:
+        app: tf-serving-species-model
+    spec:
+      containers:
+      - name: tf-serving-species-model
+        image: 869935083853.dkr.ecr.us-east-1.amazonaws.com/mlzoomcamp-images:species-model-custom
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+        ports:
+        - containerPort: 8500

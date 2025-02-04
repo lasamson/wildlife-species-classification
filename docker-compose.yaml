@@ -1,0 +1,9 @@
+services:
+  species-model-service:
+    image: "species-model:custom"
+  species-gateway-service:
+    image: "species-gateway:custom"
+    environment:
+      - TF_SERVING_HOST=species-model-service:8500
+    ports:
+      - "9696:9696"
