@@ -95,11 +95,63 @@ There are two approaches we took for deploying the model, both locally and on Am
 1. It is a lightweight system specifically made for serving trained models, and thus, discards all features of TensorFlow besides inference capabilities. It also has a highly optimized, low-level implementation in C++.
 2. It supports serving models via gRPC, which is a data format that encodes data using a more efficient binary representation. This makes it more efficient than JSON, which is based on key-value pairs and high-level data structures such as strings, numbers, and objects. The catch is that deployment involves more moving parts and complex logic.
 
-### Deploying with Vanilla TensorFlow
+### Deploying with Pure TensorFlow, AWS Lambda, and API Gateway
 
-#### Deploying Locally with Docker and Flask
+AWS Lambda is a serverless compute service, where we can run programs without explicitly provisioning or managing servers. It automatically scales up and down based on traffic to our program.
 
-#### Deploying to the Cloud (AWS Lambda)
+#### Local Deployment
+
+AWS provides a Lambda Python base image that makes it easy to deploy code Python code to Lambda. We simply extend the base image in `Dockerfile` where we copy over the trained model, as well as a `lambda_function.py` script implementing a `lambda_handler` function. This function is able to receive POST requests and then compute the prediction for the corresponding input. We set this function to be invoked upon the container's start up by overriding the `CMD` argument.
+
+By default, the Lambda image listens for requests on port 8080, at the endpoint `/2015-03-31/functions/function/invocations`. 
+
+Now, we simply build the Docker image:
+```
+docker build -t species-model .
+```
+And run the built image as a container, forward our host port 8080 to the conatainer port 8080, where Lambda is listening for requests:
+```
+docker run -it --rm species-model:latest -p 8080:8080
+```
+
+With just this much, we've essentially deployed our model locally with Docker and TensorFlow. Now we can simply make a POST request to the endpoint provided in the Lambda documentation. An test script to do this is provided at `scripts/prod/test/test_lambda.py`. 
+
+#### Upload Docker Image to AWS Elastic Container Registry (AWS ECR)
+
+From this point, it is fairly straightforward to deploy our containerized application to AWS Lambda. We need to install `awscli`, the AWS CLI tool, as follows:
+```
+pip install awscli
+```
+Once the AWS CLI tool is configured, the first step is to create an image repository in AWS Elastic Container Registry (ECR). We do this as follows:
+```
+aws ecr create-repository --repository-name species-images
+```
+This command will create the repository and output some information, including the URI of the repository, which will look as follows:
+```
+<account_name>.dkr.ecr.<region>.amazonaws.com/<repository_name>
+```
+Now, we need to tag our local built Docker image `species-model:latest` with a remote URI, which will have the repository URI as a prefix. For example:
+```
+PREFIX=${ACCOUNT_NAME}.dkr.ecr.${REGION}.amazonaws.com/${REPOSITORY_NAME}
+REMOTE_URI=${PREFIX}:species-model-custom-001
+```
+Now, we need to push the image; but first, we need to log in to AWS ECR:
+```
+$(aws ecr get-login --no-include-email)
+docker push ${REMOTE_URI}
+```
+
+#### Create Lambda Function from Image
+
+Now, we need to create a Lambda function from our Lambda image. We simply create a new function in the AWS Lambda console, select "Container image", give the function a name, and point it to our uploaded Docker image. Leave all other settings as default.
+
+#### Expose the Lambda Function via REST API (API Gateway)
+
+Now that we've uploaded our Lambda image to ECR and created a corresponding Lambda function, we need to expose the Lambda function as a web service. We will do this via API gateway, which is another AWS service for creating and exposing REST APIs.
+
+We go to the API Gateway web console, create a new REST API, and assign the API a name. Then we create a resource, and name it `/predict`. We then create a POST method for this resource and select `Lambda Function` as the integration, specifying our previously created Lambda function. Finally, we just need to deploy our API, and API Gateway provides us with an invocation URL.
+
+Whereas we previously did port-forwarding to make requests to our Docker image, we can now use this invocation URL. Again, the same test script `scripts/prod/test/test_lambda.py` demonstrates how we can request this endpoint. Thus, we've successfully deployed our model as a web service using TensorFlow, AWS Lambda, and API Gateway!
 
 ### Deploying with TensorFlow Serving
 
